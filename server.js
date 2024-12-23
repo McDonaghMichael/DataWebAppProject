@@ -182,3 +182,29 @@ app.get('/lecturers', (req, res) => {
             res.status(500).send("Error fetching lecturers");
         });
 });
+
+app.get('/grades', (req, res) => {
+    const query = `
+        SELECT 
+            student.name AS student_name,
+            module.name AS module_name,
+            grade.grade AS student_grade
+        FROM 
+            student
+        LEFT JOIN 
+            grade ON student.sid = grade.sid
+        LEFT JOIN 
+            module ON grade.mid = module.mid
+        ORDER BY 
+            student_name ASC, student_grade ASC;
+    `;
+
+    connection.query(query, (error, results) => {
+        if (error) {
+            console.error('Error fetching grades:', error.message);
+            res.status(500).send('Error fetching grades');
+            return;
+        }
+        res.render('grades', { grades: results });
+    });
+});
