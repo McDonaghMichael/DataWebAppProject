@@ -66,11 +66,54 @@ app.get('/students', (req, res) => {
 
 
 app.get('/students/add', (req, res) => {
-    res.send("Add");
+    res.render('add', { errors: null, sid: null, name: null, age: null });
 });
 
+
 app.post('/students/add', (req, res) => {
-    res.send("post");
+    const { sid, name, age } = req.body;
+
+    const errors = [];
+
+    if (!sid || sid.length !== 4) {
+        errors.push('Student ID should be 4 characters');
+    }
+    if (!name || name.length < 2) {
+        errors.push('Student Name should be at least 2 characters');
+    }
+    if (!age || age < 18) {
+        errors.push('Student Age should be at least 18');
+    }
+
+    if (errors.length > 0) {
+        res.render('add', { errors, sid, name, age });
+        return;
+    }
+
+    const checkQuery = 'SELECT * FROM student WHERE sid = ?';
+    connection.query(checkQuery, [sid], (checkError, results) => {
+        if (checkError) {
+            console.error('Error checking student ID:', checkError.message);
+            res.status(404).send('Error checking student ID');
+            return;
+        }
+
+        if (results.length > 0) {
+            errors.push(`Student ID ${sid} already exists`);
+            res.render('add', { errors, sid, name, age });
+            return;
+        }
+
+        const insertQuery = 'INSERT INTO student (sid, name, age) VALUES (?, ?, ?)';
+        connection.query(insertQuery, [sid, name, age], (insertError) => {
+            if (insertError) {
+                console.error('Error adding student:', insertError.message);
+                res.status(404).send('Error adding student');
+                return;
+            }
+            res.redirect('/students');
+        });
+    });
 });
 
 app.get('/students/edit/:id', (req, res) => {
@@ -91,7 +134,6 @@ app.get('/students/edit/:id', (req, res) => {
         res.render('update', { student: results[0], errors: null });
     });
 });
-
 
 app.post('/students/edit/:id', (req, res) => {
     const studentId = req.params.id;
@@ -129,8 +171,6 @@ app.post('/students/edit/:id', (req, res) => {
         res.redirect('/students');
     });
 });
-
-
 
 app.get('/lecturers', (req, res) => {
     lecturers.find().toArray()
