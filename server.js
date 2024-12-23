@@ -1,11 +1,31 @@
 const express = require('express'); 
 const promise = require('promise-mysql'); 
+const mysql = require('mysql');
 
 const path = require('path');
 const app = express();
+
 const port = 3004; 
 
 const MongoClient = require('mongodb').MongoClient
+
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',         
+    password: 'password',
+    database: 'proj2024mysql'
+  });
+  
+
+  connection.connect((error) => {
+    if (error) {
+      console.error('Error connecting to MySQL:', error.message);
+      return;
+    }
+    console.log('Connected to MySQL');
+  });
+
+connection.end();
 
 var lecturers = null;
 
