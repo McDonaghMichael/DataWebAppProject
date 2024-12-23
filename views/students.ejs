@@ -13,6 +13,7 @@
                 <th>Student ID</th>
                 <th>Name</th>
                 <th>Age</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -21,6 +22,7 @@
                     <td><%= student.sid %></td>
                     <td><%= student.name %></td>
                     <td><%= student.age %></td>
+                    <td><a href="/students/edit/<%= student.sid %>">Update</a></td>
                 </tr>
             <% }); %>
         </tbody>

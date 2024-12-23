@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Student</title>
+</head>
+<body>
+    <a href="/students">Home</a>
+    <h1>Update Student</h1>
+
+    <% if (errors) { %>
+        <div class="error">
+            <% errors.forEach(error => { %>
+                <p><%= error %></p>
+            <% }); %>
+        </div>
+    <% } %>
+
+    <form action="/students/edit/<%= student.sid %>" method="POST">
+        <label for="sid">Student ID</label><br>
+        <input type="text" id="sid" name="sid" value="<%= student.sid %>" readonly><br><br>
+
+        <label for="name">Name</label><br>
+        <input type="text" id="name" name="name" value="<%= student.name %>"><br><br>
+
+        <label for="age">Age</label><br>
+        <input type="number" id="age" name="age" value="<%= student.age %>"><br><br>
+
+        <button type="submit">Update</button>
+    </form>
+</body>
+</html>

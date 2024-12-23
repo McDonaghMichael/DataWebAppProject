@@ -38,6 +38,8 @@ MongoClient.connect('mongodb://127.0.0.1:27017')
     })
 
 app.use(express.static('public'));
+app.use(express.urlencoded({ extended: true }));
+
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -72,12 +74,62 @@ app.post('/students/add', (req, res) => {
 });
 
 app.get('/students/edit/:id', (req, res) => {
-    res.send(req.params.id);
+    const studentId = req.params.id;
+
+    const query = 'SELECT * FROM student WHERE sid = ?';
+    connection.query(query, [studentId], (error, results) => {
+        if (error) {
+            console.error('Error fetching student:', error.message);
+            res.status(404).send('Error fetching student');
+            return;
+        }
+        if (results.length === 0) {
+            res.status(404).send('Student not found');
+            return;
+        }
+
+        res.render('update', { student: results[0], errors: null });
+    });
 });
 
+
 app.post('/students/edit/:id', (req, res) => {
-    res.send(req.params.id);
+    const studentId = req.params.id;
+    const { name, age } = req.body;
+
+    const errors = [];
+
+    if (!name || name.length < 2) {
+        errors.push('Student Name should be at least 2 characters');
+    }
+    if (!age || age < 18) {
+        errors.push('Student Age should be at least 18');
+    }
+
+    if (errors.length > 0) {
+        const query = 'SELECT * FROM student WHERE sid = ?';
+        connection.query(query, [studentId], (error, results) => {
+            if (error) {
+                console.error('Error fetching student:', error.message);
+                res.status(404).send('Error fetching student');
+                return;
+            }
+            res.render('update', { student: results[0], errors });
+        });
+        return;
+    }
+
+    const query = 'UPDATE student SET name = ?, age = ? WHERE sid = ?';
+    connection.query(query, [name, age, studentId], (error) => {
+        if (error) {
+            console.error('Error updating student:', error.message);
+            res.status(404).send('Error updating student');
+            return;
+        }
+        res.redirect('/students');
+    });
 });
+
 
 
 app.get('/lecturers', (req, res) => {
