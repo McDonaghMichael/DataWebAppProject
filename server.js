@@ -25,7 +25,6 @@ const connection = mysql.createConnection({
     console.log('Connected to MySQL');
   });
 
-connection.end();
 
 var lecturers = null;
 
@@ -52,8 +51,17 @@ app.listen(port, () => {
 });
 
 app.get('/students', (req, res) => {
-  
+    const query = 'SELECT * FROM student';
+    connection.query(query, (error, results) => {
+        if (error) {
+            console.error('Error fetching students:', error.message);
+            res.status(404).send('Error fetching students');
+            return;
+        }
+        res.render('students', { students: results });
+    });
 });
+
 
 app.get('/students/add', (req, res) => {
     res.send("Add");
