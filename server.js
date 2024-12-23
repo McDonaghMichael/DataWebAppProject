@@ -183,6 +183,38 @@ app.get('/lecturers', (req, res) => {
         });
 });
 
+app.get('/lecturers/delete/:id', (req, res) => {
+    const lecturerId = req.params.id;
+
+    const query = 'SELECT * FROM module WHERE lecturer = ?';
+
+    connection.query(query, [lecturerId], async (error, results) => {
+        if (error) {
+            console.error('Error checking module associations:', error.message);
+            res.status(500).send('Error checking module associations');
+            return;
+        }
+
+        if (results.length > 0) {
+            res.send(`<h1>Error Message</h1>
+                <p>Cannot delete lecturer ${lecturerId}. He/She has associated modules.</p>
+                <a href="/lecturers">Back to Lecturers</a>
+            `);
+        } else {
+           
+            try {
+                await lecturers.deleteOne({ _id: lecturerId });
+                res.redirect('/lecturers'); 
+            } catch (deleteError) {
+                console.error('Error deleting lecturer:', deleteError.message);
+                res.status(404).send('Error deleting lecturer');
+            }
+        }
+    });
+});
+
+
+
 app.get('/grades', (req, res) => {
     const query = `
         SELECT 

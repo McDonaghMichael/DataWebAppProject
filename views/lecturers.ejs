@@ -6,13 +6,16 @@
     <title>Lecturers</title>
 </head>
 <body>
-    <h1>Lecturers List</h1>
+    <a class="link" href="/">Home</a>
+    <h1>Lecturers</h1>
+
     <table>
         <thead>
             <tr>
                 <th>Lecturer ID</th>
                 <th>Name</th>
                 <th>Department</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -21,6 +24,7 @@
                     <td><%= lecturer._id %></td>
                     <td><%= lecturer.name %></td>
                     <td><%= lecturer.did %></td>
+                    <td><a href="/lecturers/delete/<%= lecturer._id %>">Delete</a></td>
                 </tr>
             <% }); %>
         </tbody>
