@@ -9,13 +9,13 @@ const port = 3004;
 
 const MongoClient = require('mongodb').MongoClient
 
+// This is the connection code for the mysql so we can login to our mysql database
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',         
     password: 'password',
     database: 'proj2024mysql'
   });
-  
 
   connection.connect((error) => {
     if (error) {
@@ -25,9 +25,10 @@ const connection = mysql.createConnection({
     console.log('Connected to MySQL');
   });
 
-
+// Data of lecturers are stored in this variable
 var lecturers = null;
 
+// Our code to connect to the Mongo database
 MongoClient.connect('mongodb://127.0.0.1:27017')
     .then((client) => {
         db = client.db('proj2024MongoDB')
@@ -38,9 +39,10 @@ MongoClient.connect('mongodb://127.0.0.1:27017')
     })
 
 app.use(express.static('public'));
+
 app.use(express.urlencoded({ extended: true }));
 
-
+// We use the ejs views so we can load our data into html pages
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -52,6 +54,7 @@ app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
 });
 
+// Queries all of the students for this page
 app.get('/students', (req, res) => {
     const query = 'SELECT * FROM student';
     connection.query(query, (error, results) => {
@@ -64,12 +67,12 @@ app.get('/students', (req, res) => {
     });
 });
 
-
+// Renders the add page for the students
 app.get('/students/add', (req, res) => {
     res.render('add', { errors: null, sid: null, name: null, age: null });
 });
 
-
+// Post request is made when a new student is to be created
 app.post('/students/add', (req, res) => {
     const { sid, name, age } = req.body;
 
@@ -116,6 +119,7 @@ app.post('/students/add', (req, res) => {
     });
 });
 
+// Get request for when editing a student based on their mongodb id
 app.get('/students/edit/:id', (req, res) => {
     const studentId = req.params.id;
 
@@ -135,6 +139,7 @@ app.get('/students/edit/:id', (req, res) => {
     });
 });
 
+// Post request to push the changes to the student
 app.post('/students/edit/:id', (req, res) => {
     const studentId = req.params.id;
     const { name, age } = req.body;
@@ -172,6 +177,7 @@ app.post('/students/edit/:id', (req, res) => {
     });
 });
 
+// Gets all of the lecturers from the variable from above
 app.get('/lecturers', (req, res) => {
     lecturers.find().toArray()
         .then((documents) => {
@@ -179,10 +185,11 @@ app.get('/lecturers', (req, res) => {
         })
         .catch((error) => {
             console.error("Error fetching lecturers:", error.message);
-            res.status(500).send("Error fetching lecturers");
+            res.status(404).send("Error fetching lecturers");
         });
 });
 
+// Deletes a lecturer based on the given id
 app.get('/lecturers/delete/:id', (req, res) => {
     const lecturerId = req.params.id;
 
@@ -191,7 +198,7 @@ app.get('/lecturers/delete/:id', (req, res) => {
     connection.query(query, [lecturerId], async (error, results) => {
         if (error) {
             console.error('Error checking module associations:', error.message);
-            res.status(500).send('Error checking module associations');
+            res.status(404).send('Error checking module associations');
             return;
         }
 
@@ -213,8 +220,7 @@ app.get('/lecturers/delete/:id', (req, res) => {
     });
 });
 
-
-
+// Fetches all of the grades from the student and modules
 app.get('/grades', (req, res) => {
     const query = `
         SELECT 
@@ -234,7 +240,7 @@ app.get('/grades', (req, res) => {
     connection.query(query, (error, results) => {
         if (error) {
             console.error('Error fetching grades:', error.message);
-            res.status(500).send('Error fetching grades');
+            res.status(404).send('Error fetching grades');
             return;
         }
         res.render('grades', { grades: results });
