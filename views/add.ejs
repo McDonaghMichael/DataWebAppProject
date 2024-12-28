@@ -7,11 +7,10 @@
 
 </head>
 <body>
-    <a href="/students">Back</a>
     <h1>Add Student</h1>
-
+    <a href="/students">Back</a>
     <% if (errors) { %>
-        <div class="error">
+        <div>
             <% errors.forEach(error => { %>
                 <p><%= error %></p>
             <% }); %>
